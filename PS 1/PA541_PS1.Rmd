@@ -12,7 +12,7 @@ knitr::opts_chunk$set(echo = TRUE)
 # Details 
 
 Name: Jake da Silva Passos-Hoioos
-Class: PA 541 - Advanced Data Analysis
+Class: PA 541 - Advanced Data Analysis s 
  
 # PART ONE - Data Wrangling
 
