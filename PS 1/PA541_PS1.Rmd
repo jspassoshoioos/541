@@ -1,64 +1,75 @@
 ---
-title: "541 PS1"
+title: "541 Problem Set 1"
 author: "Jake da Silva Passos-Hoioos"
-date: "2/4/2022"
-output: html_document
+date: "`r format(Sys.time(), '%A, %B %d, %Y')`"
+output: 
+  html_document: 
+    toc: true
+    toc_depth: 2 
+    toc_float: yes
+    number_sections: true
+    theme: journal
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
-
-# Details 
-
-Name: Jake da Silva Passos-Hoioos
-Class: PA 541 - Advanced Data Analysis s 
  
 # PART ONE - Data Wrangling
 
-Read in the ‘fatalities’ data.  The data come from the US Department of Transportation Fatal Accident Reporting System.
-Total vehicle miles traveled annually by state was obtained from the Department of Transportation. Personal income was obtained from the US Bureau of Economic Analysis,
-and the unemployment rate was obtained from the US Bureau of Labor Statistics. You can read in the data using following:  fatal = read_csv("Fatalities.csv") 
+Read in the ‘fatalities’ data.  
+
+- The data come from the US Department of Transportation Fatal Accident Reporting System.
+  + Total vehicle miles traveled annually by state was obtained from the Department of Transportation. 
+  + Personal income was obtained from the US Bureau of Economic Analysis,
+  + The unemployment rate was obtained from the US Bureau of Labor Statistics. 
+You can read in the data using following:
+
+```{r, intro chunk, eval=F}
+fatal = read_csv("Fatalities.csv") 
+
+```
 Names and descriptions of those variables are below.
 
-	state - state.
-	year - year.
-	spirits - Spirits consumption.
-	unemp - Unemployment rate.
-	income - Per capita personal income in 1987 dollars.
-	emppop - Employment/population ratio.
-	beertax -  Tax on case of beer.
-	baptist - Percent of southern baptist.
-	mormon - Percent of mormon.
-	drinkage - Minimum legal drinking age.
-	dry -  Percent residing in “dry” countries.
-	youngdrivers - Percent of drivers aged 15--24.
-	miles - Average miles per driver.
-	breath - Preliminary breath test law?
-	jail - Mandatory jail sentence?
-	service- Mandatory community service?
-	fatal - Number of vehicle fatalities.
-	nfatal - Number of night-time vehicle fatalities.
-	sfatal - Number of single vehicle fatalities.
-	fatal1517 - Number of vehicle fatalities, 15--17 year olds.
-	nfatal1517 -  Number of night-time vehicle fatalities, 15--17 year olds.
-	fatal1820 -  Number of vehicle fatalities, 18--20 year olds.
-	nfatal1820 - Number of night-time vehicle fatalities, 18--20 year olds.
-	fatal2124 - Number of vehicle fatalities, 21--24 year olds.
-	nfatal2124 - Number of night-time vehicle fatalities, 21--24 year olds.
-	afatal - Number of alcohol-involved vehicle fatalities.
-	pop - Population.
-	pop1517 -  Population, 15--17 year olds.
-	pop1820 -  Population, 18--20 year olds.
-	pop2124 - Population, 21--24 year olds.
-	milestot - Total vehicle miles (millions).
-	unempus - US unemployment rate.
-	emppopus -  US employment/population ratio.
-	gsp - GSP rate of change.
+- state: state.
+- year: year.
+- spirits: Spirits consumption.
+- unemp: Unemployment rate.
+- income: Per capita personal income in 1987 dollars.
+- emppop: Employment/population ratio.
+- beertax:  Tax on case of beer.
+- baptist: Percent of southern baptist.
+- mormon: Percent of mormon.
+- drinkage: Minimum legal drinking age.
+- dry:  Percent residing in “dry” countries.
+- youngdrivers: Percent of drivers aged 15--24.
+- miles: Average miles per driver.
+- breath: Preliminary breath test law?
+- jail: Mandatory jail sentence?
+- service: Mandatory community service?
+- fatal: Number of vehicle fatalities.
+- nfatal: Number of night-time vehicle fatalities.
+- sfatal: Number of single vehicle fatalities.
+- fatal1517: Number of vehicle fatalities, 15--17 year olds.
+- nfatal1517:  Number of night-time vehicle fatalities, 15--17 year olds.
+- fatal1820:  Number of vehicle fatalities, 18--20 year olds.
+- nfatal1820: Number of night-time vehicle fatalities, 18--20 year olds.
+- fatal2124: Number of vehicle fatalities, 21--24 year olds.
+- nfatal2124: Number of night-time vehicle fatalities, 21--24 year olds.
+- afatal: Number of alcohol-involved vehicle fatalities.
+- pop: Population.
+- pop1517:  Population, 15--17 year olds.
+- pop1820:  Population, 18--20 year olds.
+- pop2124: Population, 21--24 year olds.
+- milestot: Total vehicle miles (millions).
+- unempus: US unemployment rate.
+- emppopus: US employment/population ratio.
+- gsp: GSP rate of change.
+
 
 ```{r libaries and data}
 # Setting WD
-file_loc <- '~/../Documents/GitHub/541/PS 1/'
+file_loc <- '~/../Documents/UIC/Spring 2022/541/541/PS 1/'
 setwd(file_loc)
 
 # libraries 
@@ -67,7 +78,7 @@ library(tidyverse)
 
 # data read
 
-fatality <- read_csv(paste0(file_loc, "/Fatalities.csv"))
+fatality <- read_csv(paste0(file_loc, "Fatalities.csv"))
 
 glimpse(fatality) # check variables 
 
@@ -76,8 +87,8 @@ glimpse(fatality) # check variables
 
 ## QUESTION 1 (20pts)
 The following will require you to use the tools and verbs we have learned to wrangle data. The results of these tasks will produce a tibble. You only need to copy and paste the tibble itself (what R reports) and not all of the variables or observations (i.e., don’t copy out the whole dataset).
-First, select a handful of variables to focus on and remove the others. 
-	Create a new dataset, call it fatality2, that contains only the following variables: fatal, state, year, spirits, unemp, income, dry, pop, and miles. Use this dataset for all steps below. (5pts)
+
+First, select a handful of variables to focus on and remove the others. Create a new dataset, call it fatality2, that contains only the following variables: fatal, state, year, spirits, unemp, income, dry, pop, and miles. Use this dataset for all steps below. **(5pts)**
 
 ```{r Q1 P1}
 fatality2 <- fatality %>% 
@@ -89,7 +100,7 @@ dim(fatality2) # Should be 336 X 9
 
 ```
 
-	For each year available in the dataset (i.e., 1982 – 1988), how many total fatalities were there in each of those years? (3pts)
+For each year available in the dataset (i.e., 1982 – 1988), how many total fatalities were there in each of those years? **(3pts)**
 	
 ```{r Q1 P2}
 
@@ -102,7 +113,7 @@ fatality2 %>%
 ```
 
 
-	Which state had the largest number of fatalities in 1982? (2pts)
+Which state had the largest number of fatalities in 1982? **(2pts)**
 
 ```{r Q1 P3}
 
@@ -116,7 +127,7 @@ fatality2 %>%
 
 ```
 
-	Which states in which years had more than 1,000 fatalities and more than 20% of its population residing in dry counties. (5pts)
+Which states in which years had more than 1,000 fatalities and more than 20% of its population residing in dry counties. **(5pts)**
 	
 ```{r Q1 P4}
 
@@ -131,7 +142,7 @@ fatality2 %>%
 ```
 
 
-	What is the average number of fatalities in each state? (5pts)
+What is the average number of fatalities in each state? **(5pts)**
 	
 ```{r Q1 P5}
 # Similar to the previous summarise but now grouping by state instead of year, and calculating average not sum. 
@@ -158,7 +169,9 @@ fatality2 <- fatality2 %>%
   )
   )
 
-fatality2
+fatality2 %>% 
+  group_by(fatal.cat) %>% 
+  summarise(avg_mile_cat = mean(miles))
 ```
 
 
@@ -183,11 +196,13 @@ lm1 <- lm(fatal ~ miles, data = fatality3)
 
 summary(lm1)
 
+# These results tell us that if the average number of miles is zero, then we would expect there to be approximately 2,518 deaths a year, and for that number to decrease by -0.18 with each additional average mile. This means that we would expect the number of fatalities to **decrease** (i.e., fatalities are negatively correlated with miles) as the average number of miles per driver increases, which intuitively makes sense, since we would expect drivers that have driven more on average to get into accidents less frequently. 
+
+# That being said, the correlation coefficient for miles is **not statistically significant** as the p-value is 0.169, which is greater than .05. Given this high p-value, which indicates a ~17% chance that the observed trend is simply due to natural variation in the data. Since that chance is greater than 5%, we fail to find that the correlation between miles and fatalities is statistically significant. 
+
 ```
 
-These results tell us that if the average number of miles is zero, then we would expect there to be approximately 2,518 deaths a year, and for that number to decrease by -0.18 with each additional average mile. This means that we would expect the number of fatalities to **decrease** (i.e., fatalities are negatively correlated with miles) as the average number of miles per driver increases, which intuitively makes sense, since we would expect drivers that have driven more on average to get into accidents less frequently. 
 
-That being said, the correlation coefficient for miles is **not statistically significant** as the p-value is 0.169, which is greater than .05. Given this high p-value, which indicates a ~17% chance that the observed trend is simply due to natural variation in the data. Since that chance is greater than 5%, we fail to find that the correlation between miles and fatalities is statistically significant. 
 
 ## QUESTION 4 (20 pts)
 Create a new population variable, that is population in 100,000s. Call the new variable pop_100k. Run a simple linear regression predicting fatal from pop.100k.
@@ -201,37 +216,34 @@ fatality3
 lm2 <- lm(fatal ~ pop_100k, data = fatality3)
 summary(lm2)
 ```
+Interpret the estimates of the slope and intercept coefficients in the context of the problem. **(10pts)**
+```{r, Q4P2}
+# The interpretation of the linear regression is as follows: 
+#
+# When the population (in 100s of thousands) is 0, our model predicts that there would still be 66.84 fatalities, which is seemingly illogical (if population # is 0 then we would expect 0 fatalities), but the intercept is not statistically significant, so this does not mean much in the broader interpretation of # our model, beyond the fact that it does not accurately predict the number of fatalities when population is 0. 
 
-	Interpret the estimates of the slope and intercept coefficients in the context of the problem. (10pts)
-
-The interpretation of the linear regression is as follows: 
-
-When the population (in 100s of thousands) is 0, our model predicts that there would still be 66.84 fatalities, which is seemingly illogical (if population is 0 then we would expect 0 fatalities), but the intercept is not statistically significant, so this does not mean much in the broader interpretation of our model, beyond the fact that it does not accurately predict the number of fatalities when population is 0. 
-
-What is statistically significant at a very high level (although not unsurprisingly) is the slope of our regression model (i.e. the correlation coefficient of our only IV, pop_100k), which means that for each increase in 100,000 people (remember our population unit is 100,000s of thousands), we would expect there to be an increase in fatalities by 17.79, meaning that population and vehicle fatalities are **positively correlated** so that as population increases, so do the number of fatalities.  
-
-	What is the percentage of variation in fatal explained by pop_100k? (5pts)
-
-That would be the R squared value, which in this case is 92%, so 92% of the data is explained by variation in population. 
-
-
-	Predict the number of fatalities in a state if the population was 8 million. (5pts)
-	
+# What is statistically significant at a very high level (although not unsurprisingly) is the slope of our regression model (i.e. the correlation coefficient of our only IV, pop_100k), which means that for each increase in 100,000 people (remember our population unit is 100,000s of thousands), we would expect there to be an increase in fatalities by 17.79, meaning that population and vehicle fatalities are **positively correlated** so that as population increases, so do the number of fatalities.  
+```
+What is the percentage of variation in fatal explained by pop_100k? **(5pts)**
+```{r, Q4P5}
+# That would be the R squared value, which in this case is 92%, so 92% of the data is explained by variation in population. 
+```
+Predict the number of fatalities in a state if the population was 8 million. **(5pts)**
 ```{r}
 
-# Remember that our model is just, fatal = 66.8468 + 19.7922(pop_100k) 
+# Remember that our model is just, fatal = 66.8468 + 17.7922(pop_100k) 
 
-q4_ans <- as.numeric(66.9468 + 19.7922*(8000000/100000))
+q4_ans <- as.numeric(66.9468 + 17.7922*(8000000/100000))
 
 q4_ans
 
+# Our model predicts that with a population of 8 million (80 in pop_100k terms) would have approximately 1,490.323 fatalities in 1987
 ```
 
-Our model predicts that with a population of 8 million (80 in pop_100k terms) would have approximately **1,650.323 fatalities** in 1987
-
-
 ## QUESTION 5 (10 pts)
-Which state has the largest negative residual in our model from question 5? Which state has the largest positive residual? What do these large positive and large negative residuals mean within the context of our data and model.
+Which state has the largest negative residual in our model from question 5? Which state has the largest positive residual? 
+
+What do these large positive and large negative residuals mean within the context of our data and model.
 
 ```{r Q5}
 fatality3 %>% 
@@ -239,47 +251,83 @@ fatality3 %>%
          resid = resid(lm2)) %>% 
   select(everything(), fatal, pred_value, resid) %>% 
   arrange(desc(resid))
+
+# New York has greatest negative residual, while Florida had the greatest positive residual. Since the residual is the difference between the observed value and expected value, a high positive residual means that the observed value was significantly higher than the predicted/expected value of the model. Meanwhile, a low negative residual (i.e., a large negative number), indicates the opposite, that the observed value was signficiantly smaller than what the model predicted it to be. 
+
+# In either case, the further the residual is from 0, the bigger the difference between what is actually observed and what is predicted by the model, while the sign of the residual indicates the directionality of the error. In context this means that Florida and New York are the worst predicted states by our model for fatalities, with New York's fatalities being the greatest overcount (prediction > observed, negative residual), and Florida's being the greatest undercount (prediction < observed, positive residual). Put differently, the model thought that New York would have much more fatalities than what it actually experienced, while the model thought Florida would have much less fatalities than what it actually experienced. 
+
 ```
-
-New York has greatest negative residual, while Florida had the greatest positive residual. Since the residual is the difference between the observed value and expected value, a high positive residual means that the observed value was significantly higher than the predicted/expected value of the model. Meanwhile, a low negative residual (i.e., a large negative number), indicates the opposite, that the observed value was signficiantly smaller than what the model predicted it to be. 
-
-In either case, the further the residual is from 0, the bigger the difference between what is actually observed and what is predicted by the model, while the sign of the residual indicates the directionality of the error. In context this means that Florida and New York are the worst predicted states by our model for fatalities, with New York's fatalities being the greatest overcount (prediction > observed, negative residual), and Flordia's being the greatest undercount (prediction < observed, positive residual). Put differently, the model thought that New York would have much more fatalities than what it actually experienced, while the model thought Flordia would have much less fatalities than what it actually experienced. 
 
 ## QUESTION 6 (15 pts)
-
 Run another regression model with fatal as the dependent variable and pop_100k, miles, and dry as the independent variables.
-
-```{r}
+```{r, Q6P1}
 lm3 <- lm(fatal ~ pop_100k + miles + dry, data = fatality3)
 summary(lm3)
-
 ```
+What percentage of the variation in the dependent variable is explained by the independent variables?
+```{r, Q6P2}	
+#94% (.9464) of the variation as indicated by the R-squared value
+```
+Ignoring whether the predictor is significant or not, interpret the coefficient estimates for each predictor. Be specific when discussing the relationship.
+```{r, Q6P3}
+#For all estimators/coefficients the interpretation is the same in that each is indicating their affect on the number of fatalities in a year, with positive coefficients indicating a positive correlation (i.e., more of that variable means more fatalities) and negative values indicating a negative correlation (i.e., more of that variable means less fatalities). 
+#
+#For the intercept, this value means that when all of our other variables are 0 (no population, no miles driven, no one living in dry counties), so when that is the case, our model predicts that there would be -1226 fatalities. 
+#
+#For pop_100k, this coefficient can be interpreted to mean that for each additional 100,000 people in population, our model expects there to be an additional 18.78 fatalities per year. Logically this makes sense because  we would expect more possible fatalities as there are more people. 
+#
+# For miles, this coefficient can be interpreted to mean that for each additional average mile driven per driver (that's the unit of miles), our model expects there to be .1464 LESS fatalities in a given year. As noted earlier in the assignment, this is logically consistent with what we would expect, as driver's drive greater distances on average, the number of fatalities declines. Essentially, miles is acting as a proxy for the experience level of the driver (more miles driven means a more "experienced" driver), and we would expect more experienced driver's to get into less accidents as their experience goes up. 
+#
+# For dry, this coefficient can be interpreted to mean that for each additional percentage point of the population that lives within a dry county where alcohol is not sold, we can expect there to be an additional 6.9 fatalities each year. If we suppose that people will seekout and consume alcohol regardless of whether they live in a dry county or not (put differently, if we assume that living in a dry county has no impact on your consumption of alcohol), then logically we would expect fatalities to increase as more and more of the population lives within dry counties, as more and more of the population would be driving between dry and wet counties to buy and consume alcohol, meaning more cars on the road, making longer trips, and potentially more DUIs (and ones that take place across a longer distance, meaning greater chance of fatalities), as a result of being in a dry county. 
+```
+How do we interpret the p-value for dry?
+```{r, Q6P4}
+# The p-value is the probability that the observed correlation between dry and fatalities is due to random chance. Since the p-value is 0.042127, we would say that there is a 96% chance that the observed correlation is due to something other than random chance or that there is a 4% chance that the correlation is simply due to random chance. If we are using the standard alpha value of .05 (which means we have a 5% chance of committing a Type I error/false positive, where we reject our null hypothesis (that the correlation is due to random chance) in favor of the alt. hypothesis that there is a meaningful/non-random relationship) 
+```
+By how much did our R-squared increase from our initial model that only included pop_100k as a predictor?
+```{r, Q6P5}
+# The original model had an adjusted R-squared of .9239, while the later model had an adjusted R-squared of 0.9464, a difference of 
 
+0.9464 - 0.9239
 
-	What percentage of the variation in the dependent variable is explained by the independent variables?
-	
-**94% of the variation** as indicated by the R-squared value
-
-	Ignoring whether the predictor is significant or not, interpret the coefficient estimates for each predictor. Be specific when discussing the relationship.
-
-
-	How do we interpret the p-value for dry?
-
-	By how much did our R-squared increase from our initial model that only included pop_100k as a predictor?
-
+# Which means that our later model is able to explain an additional 2.25% of the variation in the data when we include the additional miles and dry predictors. 
+```
 ## QUESTION 7 (15 pts)
 Run the following two models and compare the difference in the size and direction of the coefficient on miles. What is happening here? Can we trust the estimate of the effect of miles in the first model?
 Y_i=β_0+β_1 miles_i+e_i
 Y_i=β_0+β_1 miles_i+β_2 pop_100k_i+e_i
 
+```{r, q7p1}
+lmA <- lm(fatal ~ miles, data = fatality3)
+summary(lmA)
+```
 
+```{r, q7p2}
+lmB <- lm(fatal ~ miles + pop_100k, data = fatality3)
+summary(lmB)
 
+# Two important things are happening here. The first pertains to the coefficient/estimator value for miles. In the first model (lmA), the estimator for miles is -0.18, which means that for each additional average mile driven we would expect .18 LESS fatalities, meaning as more miles are driven, less fatalities occur. In the second model (lmB) we see both a change in the sign of the same coefficient, although the size remains roughly the same. Now in this model, the estimator for miles is .18, which means now our model predicts that for each additional average mile per driver, there will be an ADDITIONAL .18 fatalities. 
 
+# The second thing happening here is the shift in p-value and significance for the miles variable. In our first model, the p-value is 0.1691, which means there's a ~17% chance that the observed correlation is just due to random chance, which causes us to conclude that variable is not statistically significant. In the second model, the p-value drops significantly down to 0.000249, which means there's a <1% chance that the observed difference is due to random chance, allowing us to conclude that the relationship is statistically significant. 
+
+# The consequence of this is that we cannot trust the estimator or its interpretation for miles from the first model. If it were statistically significant in both models and we then observed this difference, that would be cause for concern. But since it is not significant in the first model, the fact that the coefficient's sign is different isn't an issue. 
+```
 
 ## QUESTION 8 (5 pts)
 
-	Define randomness. Give an example of randomness that might appear in data analysis.
+Define randomness. Give an example of randomness that might appear in data analysis.
 
+```{r, Q8P1}
 
-	Define endogeneity. Give an example of how endogeneity might appear in data analysis. 
+# An easy way to think about randomness is to think of it as noise, especially in the sense within information science and communications. Observations are a combination of two things: meaningful signals and noise. The meaningful signal is there for a reason/deterministic cause, while the noise is everything else and isn't caused by anything other than just chance (like background radiation caused by the sun). In statistics, we use hypothesis testing to discern these two from each other, by calculating the probability (p-values) if an observed difference is due to random chance or not, and if that probability is below a certain level (usually 0.05), then we conclude that the observed relationship (such as the difference of means between two groups) is not simply due to random chance and is instead statistically significant at the defined significance level. 
+# 
+# Another central role of randomness is it's role in sample selection, and consequently its role in the Central Limit Theorem (CLT). When selecting a sample, you usually want your sample to be free of any bias (exclusions occur in over/under sampling) to ensure a representative sample that can generalize to the rest of the population. Random sampling is also a predicate assumption for many statistical models and tests, and is key to the CLT in that through random samples of sufficiently large size, we are able to generalize about sampling distributions for variables as if they were normally distributed, even when that isn't the case.  
+```
+
+Define endogeneity. Give an example of how endogeneity might appear in data analysis. 
+```{r, Q8P2}
+# A regressor is said to be endogenous if it is correlated with the error term of the model. The reason we care about whether a variable is endogenous or not is because the Gauss-Markov theorem, which is the basis of OLS, requires that variables be strictly exogenous in order for the estimator values to be unbiased. If this assumption is violated then the estimators cannot be viewed as being unbiased and will provide unpredictable results. Usually this comes up in one of three ways, simultaneity, ommited variables, and sampling bias (error in observations). Simultaneity often shows up in econometrics because certain variables that arise in models, especially in time-series data. 
+# 
+# Endogeneity arises in data analysis because of the limiting impact it can have on estimators such as OLS regressions. 
+```
 
