@@ -1,0 +1,316 @@
+---
+title: "541 Problem Set 2"
+author: "Jake da Silva Passos-Hoioos"
+date: "`r format(Sys.time(), '%A, %B %d, %Y')`"
+output: 
+  html_document: 
+    toc: true
+    toc_depth: 2 
+    toc_float: yes
+    number_sections: false
+    df_print: paged 
+    theme: sandstone
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+```
+
+```{r libaries and data}
+# Setting WD
+file_loc <- '~/../Documents/GitHub/541/PS 2/'
+setwd(file_loc)
+
+# libraries 
+library(tidyverse)
+```
+# PARTICULARS
+
+**Class:** PA 541 - Adv. Data Analysis
+
+**Instructor:** K. Albrech 
+
+**Student:** Jake da Silva Passos-Hoioos
+
+**Assignment:** Problem Set #2
+
+**Due Date:** Sunday, February 27, 2022 @ 23:59 CT (UTC-6)
+
+**Note:** To delineate student submission from assignment prompts, all assignment text is marked in *italics* while student submission text is in plaintext. 
+
+# PART ONE 
+*Load the data file called ‘car_data.csv’. This data contains information about cars and motorcycles listed on CarDekho.com. The data contains the following variables:*
+
+- *Variable name (Description)*
+- *name (Model of the car)*
+-	*year (Year of the car when it was bought)*
+-	*selling_price (Price at which the car is being sold in Indian Rupees (₹))*
+- *km_driven (Number of Kilometers the car is driven)*
+-	*fuel (Fuel type of car (petrol / diesel / CNG / LPG / electric))*
+-	*seller_type (Tells if a seller is Individual or a Dealer)*
+-	*transmission (Gear transmission of the car (Automatic/Manual))*
+-	*owner (Number of previous owners of the car.)*
+
+```{r}
+data = read_csv("car_data.csv") 
+
+glimpse(data)
+head(data)
+```
+## QUESTION 1 (5 points)
+### Q1.a
+*What is the average selling price for automatic versus manual cars? (2 pts)*
+```{r}
+data %>% 
+  group_by(transmission) %>% 
+  summarise(trans_mean = mean(selling_price)) %>% 
+  mutate(trans_mean_usd = round(trans_mean*0.013, 2))
+```
+### Q1.b
+*Of the automatic cars, which model was sold at the highest price? (3 pts)*
+```{r}
+data %>% 
+  filter(transmission == "Automatic") %>% 
+  arrange(desc(selling_price)) %>% 
+  slice(1)
+```
+A 2016 automatic Audi RS7 2015-2019 Sportback Performance with  13K kilometers driven sold by a dealer for ₹ 8,900,000  (~$118,000)
+
+## QUESTION 2 (10 points)
+### Q2.a
+*Estimate a model with selling price as the dependent variable and kilometers driven and transmission as the independent variables. (4 pts)*
+
+```{r}
+car_lm1 <- lm(selling_price ~ km_driven + transmission, data = data)
+summary(car_lm1)
+```
+
+
+### Q2.b
+*Interpret the coefficients on all independent variables and the intercept. (6 pts)*
+
+Beginning with the intercept. Our reference group here is automatic transmissions, and a value of 0 km would suggest a brand new car that has never been driven even off the lot (depends on how to/on lot mileage and test miles are reflected in data if at all). Knowing the reference group, we can interpret the intercept to mean that our model predicts that an automatic transmission car with no mileage on it would sell for about 15 lakh (1,489,000) or about $20,000. 
+
+Both km_driven and transmission are statistically significant and the adj. r-squared is ~30% meaning about a third of the variation observed in sale price is explained by the transmission type and number of kilometers driven. 
+
+As we would expect, km_driven has a negative coefficient, and translates to roughly 3.3 cents less for every mile driven (in original units it is 1.618 rupee less per km, then using current exchange of INR to USD of 1:0.013, and km to miles ratio of 1:0.622). This means the more a car is driven the lower the price it will sell for, which is typical for car sales. 
+
+Before getting into the interpretation of transmission type, let's think about how transmission would affect sale price. Although manual transmissions are less common and typically seen as more favorable among niche car owners, because they are generally seen as more to the driver, especially in high traffic areas, I would expect having a manual transmission to negatively impact the price. Another thing to consider is that manual transmission may also be operating as a proxy, especially if the manual transmission cars are homogeneous (i.e., all the manual cars are older, less fancy, etc.)
+ 
+With that in mind, that is the case for our model and the effect is fairly large. In rupees, the impact to the price is 9.7 lakh (978,000; 1 lakh = 100K), which is approximately $13,000. So in our model between an automatic and a manual, an automatic is predicted to sell for significantly more. 
+
+## QUESTION 3 (10 points)
+*Add year to the model. What happens to the coefficient on kilometers driven? Why?*
+```{r}
+car_lm2 <- lm(selling_price ~ km_driven + transmission + year, data = data)
+summary(car_lm2)
+```
+
+Something key has happened; km_driven lost its statistical significance. Since this occurred when we added year, it suggests there *could* be some type of interaction between year and the car's mileage (or meterage?), where mileage only matters up to or after a certain age. It could also suggest a threshold effect, where mileage only becomes significant after a certain point. 
+ 
+Now back to what happened and why it matters. The loss of statistical significance means that we can no longer meaningfully interpret the coefficient for km_driven, since it doesn't mean anything in this model. In technical terms we would say that the coefficient is a bias estimator, and as a consequence, even though the sign did change on the coefficient from negative to positive (which if it were significant would suggest that more mileage **increases** sale price), since it isn't stat. sig./since it's a bias estimator, this change in sign doesn't mean anything. 
+
+## QUESTION 4 (10 points)
+*Add the categorical variable owner to the previous model (the one that included km_driven, transmission, and year).* 
+
+### Q4.a
+*Make “first owner” the reference group for the owner variable (hint: you would need to tranform the variable “owner” into a factor before determining the reference group). (2 pts)* 
+```{r}
+# First we need to make owner a factor variable. 
+data <- data %>% 
+  mutate(owner = as_factor(owner)) 
+
+levels(data$owner)
+```
+
+```{r}
+car_lm3 <- lm(selling_price ~ km_driven + transmission + year + owner, data = data)
+summary(car_lm3)
+```
+
+### Q4.b
+*Interpret the coefficients of owner. (8 pts)*
+
+Remember that our reference group here is first owner, so all of the coefficients for the other owner types of deviations + or - from that. First let's check the statistical significance of each. Only second and third owners are stat. sig. at the typical 0.05 level of significance, so we should only interpret the coefficients of these variables in our model. In both cases being a second or third owner appears to negatively impact the sale price, with a second owner car selling for 52,820 rupee less and a third owner car selling for ₹ 57,750  less, or $703 and $770 respectively.
+
+So as we would expect, the more previous owners a car has the more the price is negatively affected, but only up to the third owner. Past that the effect is no longer significant, which intuitively makes sense since there aren't really gradations of used cars (a car is either used or new in sales, refurbished isn't really a thing). 
+
+## QUESTION 5 (5 points)
+*What would be the predicted selling price of an automatic 2012 car with 100,000 kilometers and whose owner category is first owner?*
+
+Let's think about the formula for the model for a moment 
+
+```{r, results='asis'}
+
+# I will use the equatiomatic package to display a model as a pretty equation
+# install.packages("equatiomatic")
+
+library(equatiomatic)
+
+equatiomatic::extract_eq(car_lm3, use_coefs = T, ital_vars = T, wrap = T, terms_per_line = 2, operator_location = "start")
+
+```
+
+So now we substitute in the values for our example, dropping out the insignificant variables (km_driven, fourth & above, test drive)
+
+price (in rupees) = -90454601.3 + (-915189.08 X 0) + (45590 X 2012) + (−52818.3 X 0) + (-57754.26 X 0)
+
+So if we simplify we get: price = ₹ 1,277,080 or ~$17,000
+
+## QUESTION 6 (10 points)
+*The model above implicitly assumes the effect of year is the same regardless of the kilometers driven. Test whether this assumption is true and briefly discuss your results (i.e., tell me whether the assumption is true or not).*
+
+The assumption referenced in the question is because the previous model does not have an interaction term between mileage and model year, but as I previously mentioned there likely is some degree of interaction going on between these variables. Because the model lacks an interaction term the operative assumption of the model is that the effect between the two is constant across all values of km_driven. 
+
+To test whether this is present or not we just need to add the interaction term to the model. If there is no interaction (constant effect across all values of km_driven) then the interaction term will not be stat. sig., but if it is then we've confirmed there's an interaction effect occurring in our data set. 
+
+```{r}
+car_lm4 <- lm(selling_price ~ km_driven + transmission + year + year*km_driven + owner, data = data)
+summary(car_lm4)
+```
+
+In viewing the results of the new model we see that the interaction effect is significant, which means that our previous model was flawed in making the assumption that there was no interaction effect. Intuitively this makes sense. If we were comparing 2 pairs of cars, one pair new and one pair old. The cars in each pair are otherwise identical besides their mileage. Between the two pairs we would expect greater variation in sale price in the new pair than in the old pair. Put differently, an old car that has almost never been driven is still going to sell roughly the same as a car of the same year with a lot of miles on it, the age of both cars is the main thing driving down the price, and the impact of mileage on price is moderated by the overall age. Now switch to newer model cars, one with high mileage and one with low mileage. Despite being relatively new, the high mileage car is going to sell for significantly less than the new car with almost no miles on it, which is what you would usually expect.  
+
+# PART TWO
+*Load the data file called ‘insurance.csv’. This data contains medical information and costs billed by health insurance companies. The data contains the following variables:*
+
+-	*age (age of primary beneficiary)*
+-	*gender (insurance contractor gender, female, male)*
+-	*bmi (Body mass index)*
+-	*children (Number of children covered by health insurance / Number of dependents)*
+-	*smoker (Fuel type of car (petrol / diesel / CNG / LPG / electric))*
+-	*region (the beneficiary’s residential area in the US)*
+-	*charges ( Individual medical costs billed by health insurance)*
+
+```{r}
+idata <- read_csv("insurance.csv")
+glimpse(idata)
+head(idata)
+```
+
+## QUESTION 7 (10 points)
+*Write out a model (in notation similar to that which we use in class or the Wooldridge text; in other words write out the regression model) that predicts the charges based on age, sex, bmi and smoker.*
+
+### Q7.a
+*You can use the Microsoft word equation editor or simply enter the model using regular text in word. (4 pts) *
+
+```{r, results = "asis"}
+# again using equatiomatic package
+idata <- idata %>% 
+  mutate(across(where(is.character), as_factor))
+
+ins_lm1 <- lm(charges ~ age + sex + bmi + smoker, data = idata)
+# The theoretical model 
+equatiomatic::extract_eq(ins_lm1, ital_vars = TRUE)
+
+# The actual model based on our data
+equatiomatic::extract_eq(ins_lm1, ital_vars = TRUE, use_coefs = T)
+```
+
+### Q7.b
+*Given the model and how the variables are defined in the dataset, what is the base/reference category? (2 pts)* 
+
+Based on the previous output (pretty model + glimpse and head), we know that the reference category is a female smoker since that is the first observation in the data set, and by default `r library(forcats)` records the first observation of a factor variable as the reference/base level. 
+
+### Q7.c
+*Write out the equation for a female smoker. (2 pts) *
+
+Since the female smoker is our reference group, the formula would be the same with the sex and smoker variables dropped, so it would be: 
+
+charges-hat = 12200.38 + 259.45(age) + 323.05(bmi)
+
+### Q7.d 
+*Write out the equation for a male nonsmoker. (2 pts)*
+
+Same as before, but with smoker and sex added to the intercept term (simplification shown stepwise for clarity) 
+
+charges-hat = 12200.38 + 259.45(age) - 109.04(1) + 323.05(bmi) - 23833.87(1) 
+
+charges-hat = -11742.53 + 259.45(age) + 323.05(bmi)
+
+## QUESTION 8 (10 points)
+
+### Q8.a
+*Interpret the coefficients on sex and smoker (4 pts). *
+
+```{r}
+summary(ins_lm1)
+```
+
+Of the two variables, only smoker is statistically significant, sex is not. This means that within our model, sex does not explain the variation in insurance charges, while the smoker variable does. The smoker variable being significant is obvious: smoking increases the risk of a number of medical conditions that require additional treatment, which is why health insurance companies charge additional premiums to smokers. A similar reasoning could be extended to sex with women and pregnancy, but since our model does not find the sex variable to be significant, we cannot conclude that is the case. 
+For the smoker variable, the coefficient is -23,833.87. If we assume that the charges variable is coded in single USD (meaning 1 = $1), then this means our model predicts that a nonsmoker will have $23,833.87 less in charges than a smoker. 
+ 
+### Q8.b
+*Look at standard errors on coefficients for sex and smoker. Why are they different? (2 pts) [Hint: look at the formula for how we calculate the equality of our coefficient estimates]*
+
+The standard error for a coefficient is a measure of that coefficient's dispersion, and thus it's precision. A higher standard error means there's a greater difference in the predicted and observed values for that coefficient. This is balanced by the fact that the coefficient is divided by the standard error to calculate the t-value to determine if the coefficient is statistically significant or not. What this means is that the standard error could be higher for one variable than another while the variable with the higher SE is significant while the lower SE variable is not, if the coefficient of each variable are very large or small relative to the SE. 
+
+We see this in our data set with the fact that the SE for sex is **lower** than for smoker but sex is **not significant** while smoker is. The reason for this becomes obvious when the value for each coefficient is considered, for sex the estimate value is -109, while the estimate value for smoker is 200 times larger at 23,000. 
+
+## QUESTION 9 (20 points)
+*The model above implicitly assumes the effect of bmi is the same for both smokers and nonsmokers.* 
+
+Yes, as previously discussed this is due to the lack of an interaction term between bmi and smoker. Without this interaction term, the model assumes that bmi has the same effect regardless of a person's smoking status. But we/the medical community know this isn't the case and that in reality, the effects negative health effects of bmi and being overweight/obeese are amplified when also smoking. 
+
+### Q9.a
+*Test whether this assumption is true and briefly discuss your results (i.e., tell me whether the assumption is true or not). (5 pts)* 
+
+To test whether this assumption is true or not we should compare our restricted model to an unrestricted model that includes an interaction term. If in our new model the interaction term is significant then we know that this was a false assumption that we should not have made and should have incorporated into our model from the start. 
+
+```{r}
+ins_lm2 <- lm(charges ~ age + sex + bmi + smoker + bmi*smoker, data = idata)
+summary(ins_lm2)
+```
+
+Since the interaction term is statistically significant we know that we were incorrect in assuming that there was a constant effect of bmi across smoker groups. 
+
+### Q9.b
+*Interpret the simple main effect of bmi and smoker as well as the interaction. (5 pts)*
+
+- Simple Effects
+  * bmi: 1443.577 ***
+  * smoker: 20193.152 ***
+- Interaction Effect
+  * bmi:smoker: -1435.608 *** 
+
+I will start with smoker because of the sign change and how it seemingly makes things more confusing. In the new model the sign of the smoker variable went from negative to positive, which at first seemingly suggest that now being a nonsmoker actually **increases** your charges. But the reason this seems like this is because a BMI of 0 is illogical. This suggests that we should center the bmi data so that rather than 0 being the center, the actual center of the distribution of BMIs should be used. 
+
+Notwithstanding the need for centering, the other coefficient values start to make this make more sense. Next we see that the coefficient for bmi has gone up quite a bit from 323.05 to 1443.577, which again would seem strange if we didn't also consider the sign and size of the new interaction coefficient. The negative interaction coefficient tells us that for nonsmokers, the effect of bmi is lessened by the fact that they don't smoke. Put differently, the effect of being a nonsmoker moderates the effect of bmi, such that bmi has a greater impact among smokers than non smokers. 
+
+Another way to think about this is in practical terms. What these effects mean is that for a nonsmoker bmi has a positive impact of 7.969, so for each additional unit of BMI causes charges to increase by 7.969. For a smoker the effect of BMI is not as muted since the smoker does not have the negative interaction coefficient dampening the effect of BMI, and instead one additional unit of BMI causes charges to increase by 1443.577. This is inline with the original intuition that being a smoker would amplify the negative affects of BMI on health. 
+
+
+
+### Q9.c
+*What are the estimated charges for a 38 years old non smoker man with 25 bmi? (5 pts)*
+
+charges-hat = -22264.229 + 266.372(38) + 1443.577(25) + 20193.152(1) - 1435.608(25*1)
+
+charges-hat = -22264.229 + 10122.14 + 36089.43 + 20193.152 - 35890.2
+
+charges-hat = 8250.293
+
+As you can see the negative impact of the interaction between BMI and smoker offset the positive impact of the nonsmoker variable, so even though at first glance it seems that the model is suggesting that being a nonsmoker increases charges, it's only because the negative impact from BMI is always going to be greater since BMI will never be 0 or any value close to it (average American BMI is 26)
+
+### Q9.d
+*What are the estimated charges for a 25 years old smoker woman with 30 bmi? (5 pts)*
+
+charges-hat = -22264.229 + 266.372(25) + 1443.577(30) + 20193.152(0) - 1435.608(30*0)
+
+charges-hat = -22264.229 + 5659.3 + 43307.31
+
+charges-hat = 26702.38
+
+## QUESTION 10 (5 points)
+*Do you trust the coefficients in the model above? In other words, do you consider these to be reasonable causal estimates of the effects of the different variables? Why or why not?*
+
+When considering the model, particularly the fact that insurance companies are known to charge higher costs to smoker patients than nonsmokers, and once accounting for the effect of having uncentered data the size and sign of  the  coefficients all seem to line up with what we would intuitively expect. The very high adj. r-squared of 83% suggests that as suspected the difference in charges is largely explained by factors that insurance companies are allowed to consider (BMI, age, smoking status), while something like sex (which shouldn't and I believe actually **can't be a factor**) does not have a significant impact on costs. 
+
+ 
+## QUESTION 11 (5 points)
+*Discuss the differences between statistical and practical significance. Give an example of when a variable may be statistically significant, but has little practical significance. (Hint: Think like a data analyst who is sharing results with a policymaker).*
+
+An easy way to understand the difference between the types of significance is to consider that all practically significant observations are statistically significant, but not all statistically significant findings are practically significant. 
+
+For example, in a model that predicts the value of a home based on factors such as neighborhood, size, type of house, etc., a predictor like number of nuisance reports in a given area of a home, could have a statistically significant effect on the predicted value of the home, but the estimate for that coefficient might be immensely small, say for each nuisance call the price only goes down by 0.01 or 1 cent. In this case, there is statistical significance because there is in fact an observable effect of nuisance calls on home value, but practically speaking this effect is so small that it doesn't really mean anything. 
+
+The key way of determining whether something has practical significance or not is to put the regression into context, and remember what each of your coefficients represent and the units of each. Just because the coefficient might seem very large or very small on its own doesn't mean much outside of the context of your model. 
